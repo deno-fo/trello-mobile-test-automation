@@ -1,6 +1,7 @@
 package io.github.denofo.mobilee2e.api.trello;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.denofo.mobilee2e.config.TrelloConfig;
 
@@ -42,7 +43,11 @@ public final class TrelloApiClient {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(REQUEST_TIMEOUT)
                 .build();
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper()
+                .configure(
+                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                        false
+                );
         this.apiBaseUri = normalizeBaseUri(apiBaseUri);
         this.apiKey = requireNonBlank(apiKey, "Trello API key");
         this.apiToken = requireNonBlank(apiToken, "Trello API token");
