@@ -2,18 +2,13 @@ package io.github.denofo.mobilee2e.device.android;
 
 import io.github.denofo.mobilee2e.config.FrameworkConfig;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public final class AndroidDeviceProvider {
 
-    private static final String ADB_PATH = resolveAdbPath();
+    private static final AdbClient ADB = new AdbClient();
 
     private AndroidDeviceProvider() {
     }
@@ -72,7 +67,7 @@ public final class AndroidDeviceProvider {
     }
 
     private static List<String> getConnectedDeviceUdids() {
-        String output = runAdb("devices");
+        String output = ADB.run("devices");
 
         List<String> connectedDevices = Arrays.stream(output.split("\\R"))
                 .skip(1)
@@ -93,7 +88,7 @@ public final class AndroidDeviceProvider {
     }
 
     private static String getDeviceDisplayName(String udid) {
-        String configuredName = runAdb(
+        String configuredName = ADB.run(
                 "-s",
                 udid,
                 "shell",
@@ -107,7 +102,7 @@ public final class AndroidDeviceProvider {
             return configuredName;
         }
 
-        String model = runAdb(
+        String model = ADB.run(
                 "-s",
                 udid,
                 "shell",
@@ -118,84 +113,6 @@ public final class AndroidDeviceProvider {
         return isUsableDeviceName(model)
                 ? model
                 : "Android";
-    }
-
-    private static String runAdb(String... arguments) {
-        List<String> command = new ArrayList<>();
-        command.add(ADB_PATH);
-        command.addAll(List.of(arguments));
-
-        try {
-            Process process = new ProcessBuilder(command)
-                    .redirectErrorStream(true)
-                    .start();
-
-            String output = new String(
-                    process.getInputStream().readAllBytes(),
-                    StandardCharsets.UTF_8
-            );
-
-            int exitCode = process.waitFor();
-
-            if (exitCode != 0) {
-                throw new IllegalStateException(
-                        "ADB command failed: "
-                                + String.join(" ", command)
-                                + ". Output: "
-                                + output
-                );
-            }
-
-            return output;
-        } catch (IOException exception) {
-            throw new IllegalStateException(
-                    "Could not start adb. Resolved command: "
-                            + ADB_PATH
-                            + ". Configure ANDROID_HOME or ANDROID_SDK_ROOT, "
-                            + "or add adb to PATH.",
-                    exception
-            );
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException(
-                    "ADB command was interrupted.",
-                    exception
-            );
-        }
-    }
-
-    private static String resolveAdbPath() {
-        String executableName = isWindows()
-                ? "adb.exe"
-                : "adb";
-
-        for (String environmentVariable : List.of(
-                "ANDROID_HOME",
-                "ANDROID_SDK_ROOT"
-        )) {
-            String sdkRoot = System.getenv(environmentVariable);
-
-            if (sdkRoot == null || sdkRoot.isBlank()) {
-                continue;
-            }
-
-            Path adbPath = Path.of(
-                    sdkRoot,
-                    "platform-tools",
-                    executableName
-            );
-
-            if (Files.isRegularFile(adbPath)) {
-                return adbPath.toString();
-            }
-        }
-
-        return executableName;
-    }
-
-    private static boolean isWindows() {
-        return System.getProperty("os.name")
-                .startsWith("Windows");
     }
 
     private static boolean isUsableDeviceName(String value) {
