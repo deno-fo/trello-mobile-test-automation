@@ -18,25 +18,26 @@ class AndroidBoardCreationTest extends BaseAndroidTest {
         String boardName =
                 "e2e-board-" + Instant.now().toEpochMilli();
 
-        try (TrelloBoardCleanup ignored =
-                     new TrelloBoardCleanup(boardName)) {
-            BoardPage boardPage = new BoardsPage(driver)
-                    .waitUntilLoaded()
-                    .openCreateBoard()
-                    .enterBoardName(boardName)
-                    .createBoard();
+        registerAfterSessionCleanup(
+                new TrelloBoardCleanup(boardName)
+        );
 
-            assertAll(
-                    () -> assertEquals(
-                            boardName,
-                            boardPage.boardTitle(),
-                            "Created board title does not match."
-                    ),
-                    () -> assertTrue(
-                            boardPage.isAddListVisible(),
-                            "Add list button is not visible on the created board."
-                    )
-            );
-        }
+        BoardPage boardPage = new BoardsPage(driver)
+                .waitUntilLoaded()
+                .openCreateBoard()
+                .enterBoardName(boardName)
+                .createBoard();
+
+        assertAll(
+                () -> assertEquals(
+                        boardName,
+                        boardPage.boardTitle(),
+                        "Created board title does not match."
+                ),
+                () -> assertTrue(
+                        boardPage.isAddListVisible(),
+                        "Add list button is not visible on the created board."
+                )
+        );
     }
 }
