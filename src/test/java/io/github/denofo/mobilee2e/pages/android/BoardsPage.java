@@ -33,8 +33,9 @@ public final class BoardsPage extends AndroidBasePage {
         click(SEARCH);
     }
 
-    public void openCreateBoard() {
+    public CreateBoardPage openCreateBoard() {
         click(CREATE_BOARD);
+        return new CreateBoardPage(driver).waitUntilLoaded();
     }
 
     public void openQuickAdd() {
