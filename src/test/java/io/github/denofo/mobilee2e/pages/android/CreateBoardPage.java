@@ -27,8 +27,9 @@ public final class CreateBoardPage extends AndroidBasePage {
         return this;
     }
 
-    public void submit() {
+    public BoardPage createBoard() {
         click(CREATE_BOARD);
+        return new BoardPage(driver).waitUntilLoaded();
     }
 
     public boolean isWorkspaceSelectorVisible() {
