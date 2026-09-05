@@ -27,6 +27,8 @@ class TrelloApiClientTest {
             new AtomicReference<>();
     private final AtomicReference<String> requestQuery =
             new AtomicReference<>();
+    private final AtomicReference<String> authorization =
+            new AtomicReference<>();
 
     @BeforeEach
     void setUp() throws IOException {
@@ -86,8 +88,10 @@ class TrelloApiClientTest {
         assertEquals("/1/members/me/boards", requestPath.get());
         assertTrue(requestQuery.get().contains("filter=open"));
         assertTrue(requestQuery.get().contains("fields=id,name,closed"));
-        assertTrue(requestQuery.get().contains("key=test-key"));
-        assertTrue(requestQuery.get().contains("token=test-token"));
+        assertEquals(
+                "OAuth oauth_consumer_key=\"test-key\", oauth_token=\"test-token\"",
+                authorization.get()
+        );
     }
 
     @Test
@@ -107,8 +111,10 @@ class TrelloApiClientTest {
 
         assertEquals("DELETE", requestMethod.get());
         assertEquals("/1/boards/board-123", requestPath.get());
-        assertTrue(requestQuery.get().contains("key=test-key"));
-        assertTrue(requestQuery.get().contains("token=test-token"));
+        assertEquals(
+                "OAuth oauth_consumer_key=\"test-key\", oauth_token=\"test-token\"",
+                authorization.get()
+        );
     }
 
     private void respond(
@@ -119,6 +125,9 @@ class TrelloApiClientTest {
         requestMethod.set(exchange.getRequestMethod());
         requestPath.set(exchange.getRequestURI().getPath());
         requestQuery.set(exchange.getRequestURI().getRawQuery());
+        authorization.set(
+                exchange.getRequestHeaders().getFirst("Authorization")
+        );
 
         byte[] body = responseBody.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().add(
