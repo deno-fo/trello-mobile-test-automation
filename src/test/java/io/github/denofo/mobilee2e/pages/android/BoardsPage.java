@@ -7,12 +7,12 @@ import org.openqa.selenium.By;
 
 public final class BoardsPage extends AndroidBasePage {
 
-    private static final By SEARCH = AppiumBy.id("search");
-    private static final By CREATE_BOARD = AppiumBy.id("homeBoardsFab");
-    private static final By QUICK_ADD = AppiumBy.id("QuickAddInlineInput");
-    private static final By QUICK_ADD_INPUT = AppiumBy.id("InboxInputBasicTextField");
-    private static final By SUBMIT = AppiumBy.id("SubmitIcon");
-    private static final By CANCEL = AppiumBy.id("CancelIcon");
+    private static final By SEARCH = AndroidLocators.rawResourceId("search");
+    private static final By CREATE_BOARD = AndroidLocators.rawResourceId("homeBoardsFab");
+    private static final By QUICK_ADD = AndroidLocators.rawResourceId("QuickAddInlineInput");
+    private static final By QUICK_ADD_INPUT = AndroidLocators.rawResourceId("InboxInputBasicTextField");
+    private static final By SUBMIT = AndroidLocators.rawResourceId("SubmitIcon");
+    private static final By CANCEL = AndroidLocators.rawResourceId("CancelIcon");
 
     private final BottomNavigationComponent bottomNavigation;
 
