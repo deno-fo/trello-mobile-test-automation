@@ -24,8 +24,7 @@ public final class TrelloApiClient {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final URI apiBaseUri;
-    private final String apiKey;
-    private final String apiToken;
+    private final String authorizationHeader;
 
     public TrelloApiClient() {
         this(
@@ -49,20 +48,20 @@ public final class TrelloApiClient {
                         false
                 );
         this.apiBaseUri = normalizeBaseUri(apiBaseUri);
-        this.apiKey = requireNonBlank(apiKey, "Trello API key");
-        this.apiToken = requireNonBlank(apiToken, "Trello API token");
+        this.authorizationHeader = authorizationHeader(
+                apiKey,
+                apiToken
+        );
     }
 
     public List<TrelloBoard> getOpenBoards() {
-        URI uri = authenticatedUri(
+        URI uri = apiUri(
                 "members/me/boards",
                 "filter=open&fields=id,name,closed"
         );
 
         String responseBody = send(
-                HttpRequest.newBuilder(uri)
-                        .timeout(REQUEST_TIMEOUT)
-                        .header("Accept", "application/json")
+                requestBuilder(uri)
                         .GET()
                         .build(),
                 "get open boards"
@@ -91,19 +90,24 @@ public final class TrelloApiClient {
     }
 
     public void deleteBoard(String boardId) {
-        URI uri = authenticatedUri(
+        URI uri = apiUri(
                 "boards/" + encodePathSegment(boardId),
                 null
         );
 
         send(
-                HttpRequest.newBuilder(uri)
-                        .timeout(REQUEST_TIMEOUT)
-                        .header("Accept", "application/json")
+                requestBuilder(uri)
                         .DELETE()
                         .build(),
                 "delete board"
         );
+    }
+
+    private HttpRequest.Builder requestBuilder(URI uri) {
+        return HttpRequest.newBuilder(uri)
+                .timeout(REQUEST_TIMEOUT)
+                .header("Accept", "application/json")
+                .header("Authorization", authorizationHeader);
     }
 
     private String send(
@@ -145,26 +149,32 @@ public final class TrelloApiClient {
         }
     }
 
-    private URI authenticatedUri(
+    private URI apiUri(
             String relativePath,
             String query
     ) {
-        StringBuilder builder = new StringBuilder(
-                apiBaseUri.resolve(relativePath).toString()
-        );
+        String rawUri = apiBaseUri.resolve(relativePath).toString();
 
-        builder.append('?');
-
-        if (query != null && !query.isBlank()) {
-            builder.append(query).append('&');
+        if (query == null || query.isBlank()) {
+            return URI.create(rawUri);
         }
 
-        builder.append("key=")
-                .append(encodeQueryValue(apiKey))
-                .append("&token=")
-                .append(encodeQueryValue(apiToken));
+        return URI.create(rawUri + "?" + query);
+    }
 
-        return URI.create(builder.toString());
+    private static String authorizationHeader(
+            String apiKey,
+            String apiToken
+    ) {
+        return "OAuth oauth_consumer_key=\""
+                + escapeHeaderValue(
+                requireNonBlank(apiKey, "Trello API key")
+        )
+                + "\", oauth_token=\""
+                + escapeHeaderValue(
+                requireNonBlank(apiToken, "Trello API token")
+        )
+                + "\"";
     }
 
     private static URI normalizeBaseUri(URI uri) {
@@ -177,17 +187,17 @@ public final class TrelloApiClient {
         );
     }
 
-    private static String encodeQueryValue(String value) {
+    private static String encodePathSegment(String value) {
         return URLEncoder.encode(
-                value,
+                requireNonBlank(value, "Trello board id"),
                 StandardCharsets.UTF_8
-        );
+        ).replace("+", "%20");
     }
 
-    private static String encodePathSegment(String value) {
-        return encodeQueryValue(
-                requireNonBlank(value, "Trello board id")
-        ).replace("+", "%20");
+    private static String escapeHeaderValue(String value) {
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"");
     }
 
     private static String requireNonBlank(
