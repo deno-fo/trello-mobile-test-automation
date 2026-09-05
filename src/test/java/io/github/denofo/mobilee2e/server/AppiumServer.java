@@ -21,7 +21,7 @@ public final class AppiumServer {
     }
 
     public static void ensureAvailable(URI serverUri) {
-        URI statusUri = serverUri.resolve("/status");
+        URI statusUri = statusUri(serverUri);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(statusUri)
@@ -63,5 +63,15 @@ public final class AppiumServer {
                     exception
             );
         }
+    }
+
+    static URI statusUri(URI serverUri) {
+        String baseUrl = serverUri.toString();
+
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/";
+        }
+
+        return URI.create(baseUrl).resolve("status");
     }
 }

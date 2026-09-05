@@ -14,7 +14,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
         <appium.version>10.1.1</appium.version>
-        <skip.mobile.tests>true</skip.mobile.tests>
         <qa.build.directory>${project.basedir}/target</qa.build.directory>
     </properties>
 
@@ -48,8 +47,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.5</version>
                 <configuration>
-                    <skipTests>${skip.mobile.tests}</skipTests>
                     <failIfNoTests>false</failIfNoTests>
+                    <excludes>
+                        <exclude>**/Android*Test.java</exclude>
+                        <exclude>**/Ios*Test.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -58,15 +60,13 @@
     <profiles>
         <profile>
             <id>android</id>
-            <properties>
-                <skip.mobile.tests>false</skip.mobile.tests>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
+                        <configuration combine.self="override">
+                            <failIfNoTests>true</failIfNoTests>
                             <includes>
                                 <include>**/Android*Test.java</include>
                             </includes>
@@ -78,15 +78,13 @@
 
         <profile>
             <id>ios</id>
-            <properties>
-                <skip.mobile.tests>false</skip.mobile.tests>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
+                        <configuration combine.self="override">
+                            <failIfNoTests>true</failIfNoTests>
                             <includes>
                                 <include>**/Ios*Test.java</include>
                             </includes>
