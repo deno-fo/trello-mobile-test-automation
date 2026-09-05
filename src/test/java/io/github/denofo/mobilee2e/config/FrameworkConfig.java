@@ -16,7 +16,7 @@ public final class FrameworkConfig {
 
     public static URI appiumServerUri() {
         return URI.create(
-                value(
+                ConfigResolver.optional(
                         "appium.url",
                         "APPIUM_URL"
                 ).orElse(DEFAULT_APPIUM_URL)
@@ -24,14 +24,14 @@ public final class FrameworkConfig {
     }
 
     public static Optional<String> androidUdid() {
-        return value(
+        return ConfigResolver.optional(
                 "android.udid",
                 "ANDROID_UDID"
         );
     }
 
     public static int androidSystemPortBase() {
-        String rawValue = value(
+        String rawValue = ConfigResolver.optional(
                 "android.systemPortBase",
                 "ANDROID_SYSTEM_PORT_BASE"
         ).orElse(
@@ -59,84 +59,44 @@ public final class FrameworkConfig {
     }
 
     public static Optional<String> iosUdid() {
-        return value(
+        return ConfigResolver.optional(
                 "ios.udid",
                 "IOS_UDID"
         );
     }
 
     public static String androidAppPackage() {
-        return required(
+        return ConfigResolver.required(
                 "android.appPackage",
                 "ANDROID_APP_PACKAGE"
         );
     }
 
     public static String androidAppActivity() {
-        return required(
+        return ConfigResolver.required(
                 "android.appActivity",
                 "ANDROID_APP_ACTIVITY"
         );
     }
 
     public static String iosBundleId() {
-        return required(
+        return ConfigResolver.required(
                 "ios.bundleId",
                 "IOS_BUNDLE_ID"
         );
     }
 
     public static String iosTeamId() {
-        return required(
+        return ConfigResolver.required(
                 "ios.teamId",
                 "IOS_TEAM_ID"
         );
     }
 
     public static String iosWdaBundleId() {
-        return required(
+        return ConfigResolver.required(
                 "ios.wdaBundleId",
                 "IOS_WDA_BUNDLE_ID"
         );
-    }
-
-    private static String required(
-            String systemProperty,
-            String environmentVariable
-    ) {
-        return value(
-                systemProperty,
-                environmentVariable
-        ).orElseThrow(
-                () -> new IllegalStateException(
-                        "Missing configuration. Set -D"
-                                + systemProperty
-                                + "=<value> or environment variable "
-                                + environmentVariable
-                )
-        );
-    }
-
-    private static Optional<String> value(
-            String systemProperty,
-            String environmentVariable
-    ) {
-        String propertyValue =
-                System.getProperty(systemProperty);
-
-        if (propertyValue != null
-                && !propertyValue.isBlank()) {
-            return Optional.of(propertyValue.trim());
-        }
-
-        String environmentValue =
-                System.getenv(environmentVariable);
-
-        if (environmentValue != null
-                && !environmentValue.isBlank()) {
-            return Optional.of(environmentValue.trim());
-        }
-
-        return Optional.empty();
     }
 }
