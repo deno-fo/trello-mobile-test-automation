@@ -1,6 +1,5 @@
 package io.github.denofo.mobilee2e.pages.android;
 
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import io.github.denofo.mobilee2e.components.android.BottomNavigationComponent;
 import org.openqa.selenium.By;
