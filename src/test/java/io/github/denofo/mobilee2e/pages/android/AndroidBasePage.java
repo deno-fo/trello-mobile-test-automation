@@ -26,6 +26,17 @@ public abstract class AndroidBasePage {
         );
     }
 
+    protected WebElement visibleWithText(
+            By locator,
+            String expectedText
+    ) {
+        return wait.until(ignored -> driver.findElements(locator).stream()
+                .filter(WebElement::isDisplayed)
+                .filter(element -> expectedText.equals(element.getText()))
+                .findFirst()
+                .orElse(null));
+    }
+
     protected WebElement clickable(By locator) {
         return wait.until(
                 ExpectedConditions.elementToBeClickable(locator)
@@ -45,6 +56,18 @@ public abstract class AndroidBasePage {
     protected boolean isVisible(By locator) {
         try {
             visible(locator);
+            return true;
+        } catch (RuntimeException exception) {
+            return false;
+        }
+    }
+
+    protected boolean isVisibleWithText(
+            By locator,
+            String expectedText
+    ) {
+        try {
+            visibleWithText(locator, expectedText);
             return true;
         } catch (RuntimeException exception) {
             return false;
