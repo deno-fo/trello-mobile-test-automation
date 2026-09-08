@@ -117,6 +117,48 @@ class TrelloApiClientTest {
         );
     }
 
+    @Test
+    void shouldGetOpenListsForBoardAndIgnoreUnknownFields() {
+        server.createContext(
+                "/1/boards/board-123/lists",
+                exchange -> respond(
+                        exchange,
+                        200,
+                        """
+                        [
+                          {
+                            "id": "list-1",
+                            "name": "TODO",
+                            "closed": false,
+                            "unexpected": "ignored"
+                          }
+                        ]
+                        """
+                )
+        );
+
+        TrelloApiClient client = new TrelloApiClient(
+                apiBaseUri,
+                "test-key",
+                "test-token"
+        );
+
+        List<TrelloList> lists = client.getOpenLists("board-123");
+
+        assertEquals(1, lists.size());
+        assertEquals("list-1", lists.get(0).id());
+        assertEquals("TODO", lists.get(0).name());
+        assertFalse(lists.get(0).closed());
+        assertEquals("GET", requestMethod.get());
+        assertEquals("/1/boards/board-123/lists", requestPath.get());
+        assertTrue(requestQuery.get().contains("filter=open"));
+        assertTrue(requestQuery.get().contains("fields=id,name,closed"));
+        assertEquals(
+                "OAuth oauth_consumer_key=\"test-key\", oauth_token=\"test-token\"",
+                authorization.get()
+        );
+    }
+
     private void respond(
             HttpExchange exchange,
             int statusCode,

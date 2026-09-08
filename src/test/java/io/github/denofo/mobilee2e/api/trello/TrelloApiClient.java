@@ -89,6 +89,42 @@ public final class TrelloApiClient {
                 .findFirst();
     }
 
+    public List<TrelloList> getOpenLists(String boardId) {
+        URI uri = apiUri(
+                "boards/" + encodePathSegment(boardId) + "/lists",
+                "filter=open&fields=id,name,closed"
+        );
+
+        String responseBody = send(
+                requestBuilder(uri)
+                        .GET()
+                        .build(),
+                "get open lists"
+        );
+
+        try {
+            return objectMapper.readValue(
+                    responseBody,
+                    new TypeReference<List<TrelloList>>() {
+                    }
+            );
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Could not parse Trello lists response.",
+                    exception
+            );
+        }
+    }
+
+    public Optional<TrelloList> findOpenListByName(
+            String boardId,
+            String listName
+    ) {
+        return getOpenLists(boardId).stream()
+                .filter(list -> listName.equals(list.name()))
+                .findFirst();
+    }
+
     public void deleteBoard(String boardId) {
         URI uri = apiUri(
                 "boards/" + encodePathSegment(boardId),
