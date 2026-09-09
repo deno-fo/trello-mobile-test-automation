@@ -159,6 +159,48 @@ class TrelloApiClientTest {
         );
     }
 
+    @Test
+    void shouldGetCardsForListAndIgnoreUnknownFields() {
+        server.createContext(
+                "/1/lists/list-123/cards",
+                exchange -> respond(
+                        exchange,
+                        200,
+                        """
+                        [
+                          {
+                            "id": "card-1",
+                            "name": "Portfolio card",
+                            "closed": false,
+                            "idList": "list-123",
+                            "unexpected": "ignored"
+                          }
+                        ]
+                        """
+                )
+        );
+
+        TrelloApiClient client = new TrelloApiClient(
+                apiBaseUri,
+                "test-key",
+                "test-token"
+        );
+
+        List<TrelloCard> cards = client.getCards("list-123");
+
+        assertEquals(1, cards.size());
+        assertEquals("card-1", cards.get(0).id());
+        assertEquals("Portfolio card", cards.get(0).name());
+        assertFalse(cards.get(0).closed());
+        assertEquals("list-123", cards.get(0).idList());
+        assertEquals("GET", requestMethod.get());
+        assertEquals("/1/lists/list-123/cards", requestPath.get());
+        assertEquals(
+                "OAuth oauth_consumer_key=\"test-key\", oauth_token=\"test-token\"",
+                authorization.get()
+        );
+    }
+
     private void respond(
             HttpExchange exchange,
             int statusCode,

@@ -15,6 +15,12 @@ public final class BoardPage extends AndroidBasePage {
     private static final By LIST_NAME =
             AppiumBy.id("com.trello:id/list_name");
 
+    private static final By ADD_CARD =
+            AppiumBy.id("com.trello:id/cardlist_footer_container");
+
+    private static final By CARD_NAME =
+            AppiumBy.id("com.trello:id/cardText");
+
     public BoardPage(AndroidDriver driver) {
         super(driver);
     }
@@ -45,5 +51,19 @@ public final class BoardPage extends AndroidBasePage {
 
     public boolean isListVisible(String listName) {
         return isVisibleWithText(LIST_NAME, listName);
+    }
+
+    public AddCardPage openAddCard() {
+        click(ADD_CARD);
+        return new AddCardPage(driver).waitUntilLoaded();
+    }
+
+    public BoardPage waitForCard(String cardName) {
+        visibleWithText(CARD_NAME, cardName);
+        return this;
+    }
+
+    public boolean isCardVisible(String cardName) {
+        return isVisibleWithText(CARD_NAME, cardName);
     }
 }

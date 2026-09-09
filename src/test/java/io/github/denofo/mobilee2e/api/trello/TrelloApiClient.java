@@ -125,6 +125,42 @@ public final class TrelloApiClient {
                 .findFirst();
     }
 
+    public List<TrelloCard> getCards(String listId) {
+        URI uri = apiUri(
+                "lists/" + encodePathSegment(listId) + "/cards",
+                null
+        );
+
+        String responseBody = send(
+                requestBuilder(uri)
+                        .GET()
+                        .build(),
+                "get cards"
+        );
+
+        try {
+            return objectMapper.readValue(
+                    responseBody,
+                    new TypeReference<List<TrelloCard>>() {
+                    }
+            );
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Could not parse Trello cards response.",
+                    exception
+            );
+        }
+    }
+
+    public Optional<TrelloCard> findCardByName(
+            String listId,
+            String cardName
+    ) {
+        return getCards(listId).stream()
+                .filter(card -> cardName.equals(card.name()))
+                .findFirst();
+    }
+
     public void deleteBoard(String boardId) {
         URI uri = apiUri(
                 "boards/" + encodePathSegment(boardId),
