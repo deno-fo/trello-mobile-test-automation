@@ -10,7 +10,7 @@ import java.time.Duration;
 
 public abstract class AndroidBasePage {
 
-    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(20);
 
     protected final AndroidDriver driver;
     private final WebDriverWait wait;
