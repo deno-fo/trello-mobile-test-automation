@@ -34,6 +34,7 @@ Trello API setup/cleanup -> Android UI actions with Appium -> UI/API assertions
 - Create a board and open it
 - Create a list on a board and verify it is visible
 - Create a card in a list and verify it through the Trello API
+- Edit a card name and description, reopen it, and verify UI and API values (`AndroidCardEditingTest`; device validation pending)
 - Open and cancel Quick Add without creating a card
 
 Boards created by UI tests are removed through the Trello API after the Appium session is closed.

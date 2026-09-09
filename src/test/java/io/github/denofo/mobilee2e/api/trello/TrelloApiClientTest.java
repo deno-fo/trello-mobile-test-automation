@@ -171,6 +171,7 @@ class TrelloApiClientTest {
                           {
                             "id": "card-1",
                             "name": "Portfolio card",
+                            "desc": "Updated description",
                             "closed": false,
                             "idList": "list-123",
                             "unexpected": "ignored"
@@ -191,6 +192,7 @@ class TrelloApiClientTest {
         assertEquals(1, cards.size());
         assertEquals("card-1", cards.get(0).id());
         assertEquals("Portfolio card", cards.get(0).name());
+        assertEquals("Updated description", cards.get(0).desc());
         assertFalse(cards.get(0).closed());
         assertEquals("list-123", cards.get(0).idList());
         assertEquals("GET", requestMethod.get());

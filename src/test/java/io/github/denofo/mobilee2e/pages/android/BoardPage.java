@@ -66,4 +66,9 @@ public final class BoardPage extends AndroidBasePage {
     public boolean isCardVisible(String cardName) {
         return isVisibleWithText(CARD_NAME, cardName);
     }
+
+    public CardDetailsPage openCard(String cardName) {
+        visibleWithText(CARD_NAME, cardName).click();
+        return new CardDetailsPage(driver).waitUntilLoaded();
+    }
 }
