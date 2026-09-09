@@ -11,6 +11,12 @@ public final class FrameworkConfig {
     private static final int DEFAULT_ANDROID_SYSTEM_PORT_BASE =
             8200;
 
+    private static final String DEFAULT_ANDROID_APP_PACKAGE =
+            "com.trello";
+
+    private static final String DEFAULT_ANDROID_APP_ACTIVITY =
+            "com.trello.home.HomeActivity";
+
     private FrameworkConfig() {
     }
 
@@ -66,17 +72,17 @@ public final class FrameworkConfig {
     }
 
     public static String androidAppPackage() {
-        return ConfigResolver.required(
+        return ConfigResolver.optional(
                 "android.appPackage",
                 "ANDROID_APP_PACKAGE"
-        );
+        ).orElse(DEFAULT_ANDROID_APP_PACKAGE);
     }
 
     public static String androidAppActivity() {
-        return ConfigResolver.required(
+        return ConfigResolver.optional(
                 "android.appActivity",
                 "ANDROID_APP_ACTIVITY"
-        );
+        ).orElse(DEFAULT_ANDROID_APP_ACTIVITY);
     }
 
     public static String iosBundleId() {

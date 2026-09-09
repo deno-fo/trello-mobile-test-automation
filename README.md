@@ -87,7 +87,15 @@ appium
 
 ## Configuration
 
-Configuration can be supplied as Maven system properties or environment variables. System properties take precedence.
+For local development, copy the safe template once:
+
+```bash
+cp local.properties.example local.properties
+```
+
+Add your Trello API key and token to `local.properties`. The file is ignored by Git. After that, every Android test can also be started directly with the green Run button in IntelliJ IDEA; no per-test Run Configuration is required.
+
+Configuration can be supplied through Maven system properties, environment variables, or `local.properties`. The priority is system property, environment variable, then local file.
 
 | Purpose | Maven property | Environment variable | Required |
 | --- | --- | --- | --- |
@@ -97,20 +105,18 @@ Configuration can be supplied as Maven system properties or environment variable
 | Appium URL | `appium.url` | `APPIUM_URL` | No; defaults to `http://127.0.0.1:4723` |
 | Android device UDID | `android.udid` | `ANDROID_UDID` | No; auto-discovers one device |
 | Android system port base | `android.systemPortBase` | `ANDROID_SYSTEM_PORT_BASE` | No; defaults to `8200` |
-| Android package | `android.appPackage` | `ANDROID_APP_PACKAGE` | Android E2E tests |
-| Android activity | `android.appActivity` | `ANDROID_APP_ACTIVITY` | Android E2E tests |
+| Android package | `android.appPackage` | `ANDROID_APP_PACKAGE` | No; defaults to `com.trello` |
+| Android activity | `android.appActivity` | `ANDROID_APP_ACTIVITY` | No; defaults to `com.trello.home.HomeActivity` |
 
 Example:
 
 ```bash
 export TRELLO_API_KEY="your-api-key"
 export TRELLO_API_TOKEN="your-api-token"
-export ANDROID_APP_PACKAGE="com.trello"
-export ANDROID_APP_ACTIVITY="your.launcher.activity"
 export ANDROID_UDID="your-device-udid"
 ```
 
-Never commit Trello credentials to the repository. Store them in environment variables or your local secret manager.
+Never commit Trello credentials to the repository. Store them in `local.properties`, environment variables, or your local secret manager.
 
 ## Running tests
 

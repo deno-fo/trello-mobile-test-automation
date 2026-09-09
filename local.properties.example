@@ -1,0 +1,11 @@
+# Copy this file to local.properties and replace the placeholders.
+# local.properties is ignored by Git.
+trello.apiKey=your-api-key
+trello.apiToken=your-api-token
+
+# Optional overrides. The defaults already target the Trello Android app.
+# appium.url=http://127.0.0.1:4723
+# android.udid=your-device-udid
+# android.systemPortBase=8200
+# android.appPackage=com.trello
+# android.appActivity=com.trello.home.HomeActivity
