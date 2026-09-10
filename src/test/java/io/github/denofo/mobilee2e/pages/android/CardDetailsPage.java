@@ -75,7 +75,15 @@ public final class CardDetailsPage extends AndroidBasePage {
         click(CLOSE);
 
         By toolbarTitle = AppiumBy.id("com.trello:id/toolbar_title");
-        if (!driver.findElements(toolbarTitle).isEmpty()) {
+        boolean boardToolbarVisible = driver.findElements(toolbarTitle).stream()
+                .anyMatch(element -> {
+                    try {
+                        return element.isDisplayed();
+                    } catch (RuntimeException ignored) {
+                        return false;
+                    }
+                });
+        if (boardToolbarVisible) {
             return new BoardPage(driver).waitUntilLoaded();
         }
 
