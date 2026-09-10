@@ -67,4 +67,18 @@ public final class CardDetailsPage extends AndroidBasePage {
         click(CLOSE);
         return new BoardPage(driver).waitUntilLoaded();
     }
+
+    public BoardPage backToBoard(String boardName) {
+        if (driver.isKeyboardShown()) {
+            driver.hideKeyboard();
+        }
+        click(CLOSE);
+
+        By toolbarTitle = AppiumBy.id("com.trello:id/toolbar_title");
+        if (!driver.findElements(toolbarTitle).isEmpty()) {
+            return new BoardPage(driver).waitUntilLoaded();
+        }
+
+        return new BoardsPage(driver).waitUntilLoaded().openBoard(boardName);
+    }
 }

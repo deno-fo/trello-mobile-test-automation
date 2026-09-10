@@ -38,7 +38,7 @@ class AndroidCardEditingTest extends BaseAndroidTest {
 
         CardDetailsPage reopened = boardPage.openCard(originalName)
                 .rename(updatedName).setDescription(description)
-                .backToBoard().waitForCard(updatedName).openCard(updatedName);
+                .backToBoard(boardName).waitForCard(updatedName).openCard(updatedName);
 
         assertEquals(updatedName, reopened.name(), "Card name should persist after reopening.");
         assertEquals(description, reopened.descriptionInEditor(),
