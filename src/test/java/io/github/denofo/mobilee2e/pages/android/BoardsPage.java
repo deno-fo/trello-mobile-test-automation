@@ -33,6 +33,16 @@ public final class BoardsPage extends AndroidBasePage {
         click(SEARCH);
     }
 
+    public BoardPage openBoard(String boardName) {
+        visibleWithText(AndroidLocators.rawResourceId("boardName"), boardName).click();
+        BoardPage board = new BoardPage(driver);
+        // A populated board need not have Add list inside the viewport.
+        if (!boardName.equals(board.boardTitle())) {
+            throw new AssertionError("Unexpected board opened: " + board.boardTitle());
+        }
+        return board;
+    }
+
     public CreateBoardPage openCreateBoard() {
         click(CREATE_BOARD);
         return new CreateBoardPage(driver).waitUntilLoaded();

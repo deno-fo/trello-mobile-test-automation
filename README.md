@@ -34,7 +34,8 @@ Trello API setup/cleanup -> Android UI actions with Appium -> UI/API assertions
 - Create a board and open it
 - Create a list on a board and verify it is visible
 - Create a card in a list and verify it through the Trello API
-- Edit a card name and description, reopen it, and verify UI and API values (`AndroidCardEditingTest`; device validation pending)
+- Edit a card name and description, reopen it, and verify UI and API values (`AndroidCardEditingTest`)
+- Move a card from TODO to Done with API setup, UI location verification and API identity/list checks (`AndroidCardMovementTest`; device validation pending)
 - Open and cancel Quick Add without creating a card
 
 Boards created by UI tests are removed through the Trello API after the Appium session is closed.
@@ -158,7 +159,7 @@ The cleanup is registered as an `AfterEach` action and is executed even when the
 
 ## Roadmap
 
-- Add an Android card movement scenario between TODO and DONE lists.
+- Validate the Android card movement scenario on a device.
 - Add a negative Trello API scenario.
 - Add iOS driver, Page Objects, and test coverage.
 - Add test reports and failure artifacts for device runs.

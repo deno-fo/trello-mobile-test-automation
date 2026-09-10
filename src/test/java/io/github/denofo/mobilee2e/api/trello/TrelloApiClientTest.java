@@ -295,6 +295,51 @@ class TrelloApiClientTest {
         assertEquals(1, calls.get());
     }
 
+    @Test
+    void shouldCreateMovementFixturesWithEncodedNames() {
+        server.createContext("/1/boards/", exchange -> respond(exchange, 200,
+                "{\"id\":\"board-1\",\"name\":\"Test & board\",\"closed\":false}"));
+        server.createContext("/1/lists", exchange -> respond(exchange, 200,
+                "{\"id\":\"list-1\",\"name\":\"TODO\",\"closed\":false}"));
+        server.createContext("/1/cards", exchange -> respond(exchange, 200,
+                "{\"id\":\"card-1\",\"name\":\"Card + test\",\"idList\":\"list-1\"}"));
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        var board = client.createBoard("Test & board");
+        assertEquals("board-1", board.id());
+        assertEquals("POST", requestMethod.get());
+        assertTrue(requestQuery.get().contains("name=Test%20%26%20board"));
+        assertTrue(requestQuery.get().contains("defaultLists=false"));
+        assertTrue(requestQuery.get().contains("prefs_permissionLevel=private"));
+        assertFalse(requestQuery.get().contains("test-token"));
+        var list = client.createList(board.id(), "TODO");
+        assertEquals("list-1", list.id());
+        assertEquals("POST", requestMethod.get());
+        assertEquals("/1/lists", requestPath.get());
+        assertTrue(requestQuery.get().contains("idBoard=board-1"));
+        assertTrue(requestQuery.get().contains("pos=bottom"));
+        var card = client.createCard(list.id(), "Card + test");
+        assertEquals("card-1", card.id());
+        assertEquals("list-1", card.idList());
+        assertEquals("POST", requestMethod.get());
+        assertEquals("/1/cards", requestPath.get());
+        assertTrue(requestQuery.get().contains("name=Card%20%2B%20test"));
+        assertTrue(requestQuery.get().contains("idList=list-1"));
+        assertEquals("OAuth oauth_consumer_key=\"test-key\", oauth_token=\"test-token\"",
+                authorization.get());
+    }
+
+    @Test
+    void shouldPropagateCreationFailureWithoutRetry() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/boards/", exchange -> {
+            calls.incrementAndGet();
+            respond(exchange, 403, "Forbidden");
+        });
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        assertThrows(IllegalStateException.class, () -> client.createBoard("Test"));
+        assertEquals(1, calls.get());
+    }
+
     private void respond(
             HttpExchange exchange,
             int statusCode,

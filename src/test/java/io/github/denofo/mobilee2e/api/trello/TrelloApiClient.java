@@ -54,6 +54,31 @@ public final class TrelloApiClient {
         );
     }
 
+    public TrelloBoard createBoard(String name) {
+        return post("boards/", "name=" + encodePathSegment(name)
+                + "&defaultLists=false&prefs_permissionLevel=private", TrelloBoard.class);
+    }
+
+    public TrelloList createList(String boardId, String name) {
+        return post("lists", "name=" + encodePathSegment(name)
+                + "&idBoard=" + encodePathSegment(boardId) + "&pos=bottom", TrelloList.class);
+    }
+
+    public TrelloCard createCard(String listId, String name) {
+        return post("cards", "name=" + encodePathSegment(name)
+                + "&idList=" + encodePathSegment(listId), TrelloCard.class);
+    }
+
+    private <T> T post(String path, String query, Class<T> type) {
+        String body = send(requestBuilder(apiUri(path, query))
+                .POST(HttpRequest.BodyPublishers.noBody()).build(), "create " + type.getSimpleName());
+        try {
+            return objectMapper.readValue(body, type);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not parse created " + type.getSimpleName() + ".", exception);
+        }
+    }
+
     public List<TrelloBoard> getOpenBoards() {
         URI uri = apiUri(
                 "members/me/boards",
