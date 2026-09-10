@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: Java 17 tests
+    name: Java 17 non-device tests
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Run Maven tests
+      - name: Run non-device Maven tests
         run: ./mvnw --batch-mode --no-transfer-progress test
 
       - name: Upload test reports
