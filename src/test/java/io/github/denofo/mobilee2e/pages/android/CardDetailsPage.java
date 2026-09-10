@@ -17,7 +17,7 @@ public final class CardDetailsPage extends AndroidBasePage {
     private static final By SAVE = rawResourceId("SubmitIcon");
     private static final By BOARD_LIST_INFORMATION = rawResourceId("boardListInformation");
     private static final By CLOSE = AppiumBy.accessibilityId("Close");
-    private static final By DONE = AppiumBy.id("com.trello:id/done");
+    private static final By DONE = rawResourceId("doneCheckbox");
 
     public CardDetailsPage(AndroidDriver driver) {
         super(driver);
@@ -47,7 +47,11 @@ public final class CardDetailsPage extends AndroidBasePage {
     }
 
     public CardDetailsPage markComplete() {
-        click(DONE);
+        if (!isComplete()) {
+            click(DONE);
+        }
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
+                .until(ignored -> isComplete());
         return this;
     }
 

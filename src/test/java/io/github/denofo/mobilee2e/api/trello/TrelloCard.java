@@ -5,6 +5,7 @@ public record TrelloCard(
         String name,
         boolean closed,
         String idList,
-        String desc
+        String desc,
+        Boolean dueComplete
 ) {
 }

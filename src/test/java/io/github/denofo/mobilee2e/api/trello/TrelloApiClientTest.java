@@ -340,6 +340,18 @@ class TrelloApiClientTest {
         assertEquals(1, calls.get());
     }
 
+    @Test
+    void shouldReadCompletionIndependentlyOfArchiveState() {
+        server.createContext("/1/cards/card-1", exchange -> respond(exchange, 200,
+                "{\"id\":\"card-1\",\"closed\":false,\"dueComplete\":true,\"idList\":\"list-1\"}"));
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        var card = client.getCard("card-1");
+        assertEquals(Boolean.TRUE, card.dueComplete());
+        assertFalse(card.closed());
+        assertEquals("card-1", card.id());
+        assertTrue(requestQuery.get().contains("dueComplete"));
+    }
+
     private void respond(
             HttpExchange exchange,
             int statusCode,

@@ -214,7 +214,7 @@ public final class TrelloApiClient {
     public TrelloCard getCard(String cardId) {
         String responseBody = send(
                 requestBuilder(apiUri("cards/" + encodePathSegment(cardId),
-                        "fields=id,name,closed,idList,desc"))
+                        "fields=id,name,closed,idList,desc,dueComplete"))
                         .GET().build(),
                 "get card"
         );
