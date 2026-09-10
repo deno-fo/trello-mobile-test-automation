@@ -42,7 +42,9 @@ Trello API setup/cleanup -> Android UI actions with Appium -> UI/API assertions
 
 The first four scenarios create their test data through UI. Movement and completion prepare their boards, lists and cards through API, then perform the tested action through UI.
 
-Validation checkpoint: the maintainer confirmed all six main scenarios passing together on a real Android device. This is a successful run, not a guarantee against intermittent failures.
+Validation checkpoint (2026-09-11): the maintainer reported three consecutive runs of the six main scenarios on a real Android device, with 18/18 successful scenario executions. This is a bounded local stability check, not a guarantee against intermittent failures or coverage of other devices.
+
+See [Test plan](docs/TEST_PLAN.md) for preparation, UI/API assertions, validation evidence and scope limits.
 
 The Android profile also includes `AndroidBoardsInteractionTest`, which opens and cancels Quick Add and checks the editor state. This additional scenario is not included in the six-scenario checkpoint above.
 
@@ -59,6 +61,7 @@ src/test/java/io/github/denofo/mobilee2e/
 ├── components/android/ Shared Android UI components
 ├── config/           System property, environment and local.properties resolution
 ├── device/android/   ADB-based device discovery and device context
+├── diagnostics/      Failure screenshot and page-source collection
 ├── driver/android/   Appium driver and capabilities factories
 ├── junit/             JUnit 5 Android test extension
 ├── pages/android/    Android Page Objects
@@ -173,7 +176,7 @@ The GitHub Actions workflow in `.github/workflows/maven.yml` runs on pushes and 
 
 Maven compiles all test sources, but the default suite executes only the non-device tests: 13 mocked Trello API client tests, two Appium URL helper tests and nine failure-artifact tests (24 total). It needs no Trello secrets, connected device or running Appium server. Surefire reports are uploaded as the `surefire-reports` artifact unless the workflow is cancelled.
 
-A green CI run does not mean the Android E2E scenarios passed. Device runs are performed separately using the Android profile above.
+A green CI run does not mean the Android E2E scenarios passed. Android runs locally through IDEA or the Maven profile above. GitHub-hosted CI runs only the non-device suite; a self-hosted runner on a personal Mac is not required or part of the current setup.
 
 ## Test lifecycle and cleanup
 
@@ -205,13 +208,22 @@ Successful and aborted tests do not capture artifacts. If setup failed before a 
 
 Artifact directories are ignored by Git. They can contain private board/card content; inspect them before sharing. They are not automatically uploaded by the non-device CI workflow.
 
-Local tests exercise file saving, partial failures, unique paths and the real JUnit lifecycle using a device-free fixture. A deliberate failure on a connected device is still needed to validate actual PNG/XML capture from Appium.
+Local tests exercise file saving, partial failures, unique paths and the real JUnit lifecycle using a device-free fixture. On 2026-09-11, a deliberate assertion failure in `AndroidBoardCreationTest` also verified actual Appium capture on a connected phone: the PNG opened and showed the created board, the XML parsed successfully, and the original assertion message remained the reported failure. The temporary assertion is not part of the test scenario.
+
+## Scope and limitations
+
+- Android and English UI only; the iOS profile has no implemented scenarios.
+- Device runs depend on a live Trello account, network connectivity, app version and available workspace capacity.
+- The 18/18 checkpoint covers six scenarios on the maintainer's device, not all seven Android classes, a device matrix or a long-running reliability study.
+- Completion and movement are separate operations; completion is not card archiving.
+- Tests are functional checks, not performance, security or full Trello regression coverage.
+- Device artifacts remain local and are not automatically uploaded to GitHub.
 
 ## Roadmap
 
 - Extend negative Trello API coverage beyond the existing unauthorized-response check.
 - Add iOS driver, Page Objects, and test coverage.
-- Validate device failure artifacts and add an Android device CI runner.
+- Broaden local device/version validation when additional test hardware is available.
 
 ## License
 
