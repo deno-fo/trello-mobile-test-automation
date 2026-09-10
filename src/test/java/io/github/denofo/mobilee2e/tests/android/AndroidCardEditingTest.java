@@ -34,8 +34,7 @@ class AndroidCardEditingTest extends BaseAndroidTest {
         var board = api.findOpenBoardByName(boardName)
                 .orElseThrow(() -> new AssertionError("Test board not found through API."));
         var list = api.awaitOpenListByName(board.id(), listName);
-        var originalCard = api.findCardByName(list.id(), originalName)
-                .orElseThrow(() -> new AssertionError("Original card not found through API."));
+        var originalCard = api.awaitCardByName(list.id(), originalName);
 
         CardDetailsPage reopened = boardPage.openCard(originalName)
                 .rename(updatedName).setDescription(description)

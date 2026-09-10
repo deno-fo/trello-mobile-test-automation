@@ -249,6 +249,52 @@ class TrelloApiClientTest {
         assertEquals(1, calls.get());
     }
 
+    @Test
+    void shouldRetryUntilExpectedCardAppears() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/lists/list-123/cards", exchange -> respond(exchange, 200,
+                calls.incrementAndGet() == 1 ? "[]"
+                        : "[{\"id\":\"card-1\",\"name\":\"Expected\",\"idList\":\"list-123\"}]"));
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        var card = client.awaitCardByName("list-123", "Expected", 3, Duration.ZERO);
+        assertEquals("card-1", card.id());
+        assertEquals(2, calls.get());
+    }
+
+    @Test
+    void shouldReportCardsAfterBoundedAttemptsWithoutDescriptions() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/lists/list-123/cards", exchange -> {
+            calls.incrementAndGet();
+            respond(exchange, 200,
+                    "[{\"id\":\"card-other\",\"name\":\"Other\",\"idList\":\"list-123\","
+                            + "\"desc\":\"private-description\"}]");
+        });
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        var error = assertThrows(AssertionError.class,
+                () -> client.awaitCardByName("list-123", "Expected", 3, Duration.ZERO));
+        assertEquals(3, calls.get());
+        assertTrue(error.getMessage().contains("list-123"));
+        assertTrue(error.getMessage().contains("Expected"));
+        assertTrue(error.getMessage().contains("Other"));
+        assertTrue(error.getMessage().contains("card-other"));
+        assertFalse(error.getMessage().contains("private-description"));
+        assertFalse(error.getMessage().contains("test-token"));
+    }
+
+    @Test
+    void shouldNotRetryHttpErrorsWhileWaitingForCard() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/lists/list-123/cards", exchange -> {
+            calls.incrementAndGet();
+            respond(exchange, 401, "Unauthorized");
+        });
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        assertThrows(IllegalStateException.class,
+                () -> client.awaitCardByName("list-123", "Expected", 3, Duration.ZERO));
+        assertEquals(1, calls.get());
+    }
+
     private void respond(
             HttpExchange exchange,
             int statusCode,

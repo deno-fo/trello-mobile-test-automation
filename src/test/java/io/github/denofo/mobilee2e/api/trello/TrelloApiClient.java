@@ -195,6 +195,45 @@ public final class TrelloApiClient {
                 .findFirst();
     }
 
+    public TrelloCard awaitCardByName(String listId, String cardName) {
+        return awaitCardByName(listId, cardName, 5, Duration.ofMillis(500));
+    }
+
+    TrelloCard awaitCardByName(
+            String listId, String cardName, int attempts, Duration interval
+    ) {
+        if (attempts < 1 || interval.isNegative()) {
+            throw new IllegalArgumentException("Positive attempts and non-negative interval required.");
+        }
+        List<TrelloCard> lastCards = List.of();
+        for (int attempt = 1; attempt <= attempts; attempt++) {
+            // Retry missing data only; HTTP and parsing failures propagate immediately.
+            lastCards = getCards(listId);
+            Optional<TrelloCard> found = lastCards.stream()
+                    .filter(card -> cardName.equals(card.name()))
+                    .findFirst();
+            if (found.isPresent()) {
+                return found.get();
+            }
+            if (attempt < attempts) {
+                try {
+                    Thread.sleep(interval.toMillis());
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while waiting for Trello card.", exception);
+                }
+            }
+        }
+        // Do not dump descriptions or the raw API response into test logs.
+        var actualCards = lastCards.stream()
+                .map(card -> "{id=" + card.id() + ", name=" + card.name()
+                        + ", idList=" + card.idList() + ", closed=" + card.closed() + "}")
+                .toList();
+        throw new AssertionError("Trello card not found after " + attempts
+                + " API requests. List id=" + listId + ", expected name=\"" + cardName
+                + "\". Last returned cards=" + actualCards);
+    }
+
     public void deleteBoard(String boardId) {
         URI uri = apiUri(
                 "boards/" + encodePathSegment(boardId),
