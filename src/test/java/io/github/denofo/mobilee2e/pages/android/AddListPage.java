@@ -4,6 +4,8 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 
+import java.util.Map;
+
 public final class AddListPage extends AndroidBasePage {
 
     private static final By LIST_NAME =
@@ -28,7 +30,9 @@ public final class AddListPage extends AndroidBasePage {
     }
 
     public BoardPage createList() {
-        click(CONFIRM);
+        // The toolbar confirmation scrolls to Add list; the IME action keeps the new list in view.
+        click(LIST_NAME);
+        driver.executeScript("mobile: performEditorAction", Map.of("action", "done"));
         return new BoardPage(driver);
     }
 }
