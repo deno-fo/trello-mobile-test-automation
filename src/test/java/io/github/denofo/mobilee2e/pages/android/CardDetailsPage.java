@@ -17,6 +17,7 @@ public final class CardDetailsPage extends AndroidBasePage {
     private static final By SAVE = rawResourceId("SubmitIcon");
     private static final By BOARD_LIST_INFORMATION = rawResourceId("boardListInformation");
     private static final By CLOSE = AppiumBy.accessibilityId("Close");
+    private static final By DONE = AppiumBy.id("com.trello:id/done");
 
     public CardDetailsPage(AndroidDriver driver) {
         super(driver);
@@ -43,6 +44,15 @@ public final class CardDetailsPage extends AndroidBasePage {
 
     public String name() {
         return visible(NAME).getText();
+    }
+
+    public CardDetailsPage markComplete() {
+        click(DONE);
+        return this;
+    }
+
+    public boolean isComplete() {
+        return Boolean.parseBoolean(visible(DONE).getAttribute("checked"));
     }
 
     public MoveCardPage openMove() {

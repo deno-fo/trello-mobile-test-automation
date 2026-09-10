@@ -211,6 +211,20 @@ public final class TrelloApiClient {
         }
     }
 
+    public TrelloCard getCard(String cardId) {
+        String responseBody = send(
+                requestBuilder(apiUri("cards/" + encodePathSegment(cardId),
+                        "fields=id,name,closed,idList,desc"))
+                        .GET().build(),
+                "get card"
+        );
+        try {
+            return objectMapper.readValue(responseBody, TrelloCard.class);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not parse Trello card response.", exception);
+        }
+    }
+
     public Optional<TrelloCard> findCardByName(
             String listId,
             String cardName
