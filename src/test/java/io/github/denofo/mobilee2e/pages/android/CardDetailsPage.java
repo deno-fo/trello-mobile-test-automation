@@ -14,6 +14,7 @@ public final class CardDetailsPage extends AndroidBasePage {
                     + "//android.widget.EditText[@resource-id='mentionComposeTextField']"
     );
     private static final By SAVE = rawResourceId("SubmitIcon");
+    private static final By BOARD_LIST_INFORMATION = rawResourceId("boardListInformation");
 
     public CardDetailsPage(AndroidDriver driver) {
         super(driver);
@@ -40,6 +41,15 @@ public final class CardDetailsPage extends AndroidBasePage {
 
     public String name() {
         return visible(NAME).getText();
+    }
+
+    public MoveCardPage openMove() {
+        click(BOARD_LIST_INFORMATION);
+        return new MoveCardPage(driver).waitUntilLoaded();
+    }
+
+    public String boardAndListDescription() {
+        return visible(BOARD_LIST_INFORMATION).getAttribute("content-desc");
     }
 
     public String descriptionInEditor() {
