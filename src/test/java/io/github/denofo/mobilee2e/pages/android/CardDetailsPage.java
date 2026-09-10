@@ -1,6 +1,7 @@
 package io.github.denofo.mobilee2e.pages.android;
 
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 
 import static io.github.denofo.mobilee2e.pages.android.AndroidLocators.rawResourceId;
@@ -15,6 +16,7 @@ public final class CardDetailsPage extends AndroidBasePage {
     );
     private static final By SAVE = rawResourceId("SubmitIcon");
     private static final By BOARD_LIST_INFORMATION = rawResourceId("boardListInformation");
+    private static final By CLOSE = AppiumBy.accessibilityId("Close");
 
     public CardDetailsPage(AndroidDriver driver) {
         super(driver);
@@ -58,11 +60,11 @@ public final class CardDetailsPage extends AndroidBasePage {
     }
 
     public BoardPage backToBoard() {
-        // Saving an edit may leave the keyboard open; Back must close the card.
+        // Close the card through its own toolbar action instead of relying on system Back.
         if (driver.isKeyboardShown()) {
             driver.hideKeyboard();
         }
-        driver.navigate().back();
+        click(CLOSE);
         return new BoardPage(driver).waitUntilLoaded();
     }
 }
