@@ -139,7 +139,7 @@ Run the default non-device test suite:
 ./mvnw test
 ```
 
-This runs the Trello API client tests against a local mock HTTP server and the Appium server helper tests. It does not require a connected Android device or live Trello credentials.
+This runs the Trello API client tests against a local mock HTTP server, Appium server helper tests, and failure-artifact tests. It does not require a connected Android device or live Trello credentials.
 
 Run Android E2E tests:
 
@@ -171,7 +171,7 @@ The GitHub Actions workflow in `.github/workflows/maven.yml` runs on pushes and 
 ./mvnw --batch-mode --no-transfer-progress test
 ```
 
-Maven compiles all test sources, but the default suite executes only the non-device tests: 13 mocked Trello API client tests and two Appium URL helper tests. It needs no Trello secrets, connected device or running Appium server. Surefire reports are uploaded as the `surefire-reports` artifact unless the workflow is cancelled.
+Maven compiles all test sources, but the default suite executes only the non-device tests: 13 mocked Trello API client tests, two Appium URL helper tests and nine failure-artifact tests (24 total). It needs no Trello secrets, connected device or running Appium server. Surefire reports are uploaded as the `surefire-reports` artifact unless the workflow is cancelled.
 
 A green CI run does not mean the Android E2E scenarios passed. Device runs are performed separately using the Android profile above.
 
@@ -183,16 +183,35 @@ Each Android test:
 2. Verifies that the configured application is installed.
 3. Creates an Appium session with UiAutomator2 capabilities.
 4. Prepares scenario data through UI or API and performs UI actions through Page Objects.
-5. Closes the Appium session.
-6. Deletes test boards through the Trello API.
+5. On a test or `@BeforeEach` failure, attempts to save failure artifacts while the session is still available.
+6. Closes the Appium session.
+7. Deletes test boards through the Trello API.
 
 The cleanup is registered as an `AfterEach` action and is executed even when the UI test fails after the board has been created.
+
+## Android failure artifacts
+
+Tests inheriting `BaseAndroidTest` automatically attempt to save these files on failure:
+
+```text
+artifacts/android/<device-test-unique-suffix>/
+├── screenshot.png
+└── page-source.xml
+```
+
+The path is relative to the working directory (normally the repository root) and is printed in the test console. Each failure uses a new directory, so repeated or multi-device runs do not overwrite earlier captures. Screenshot and XML capture are independent; a failed capture logs a warning without replacing the original test failure or preventing normal cleanup.
+
+Successful and aborted tests do not capture artifacts. If setup failed before a driver was created, or the Appium session is already unavailable, screen artifacts may be absent. Failures arising only during teardown/API cleanup are not captured: the UI session may already have been closed.
+
+Artifact directories are ignored by Git. They can contain private board/card content; inspect them before sharing. They are not automatically uploaded by the non-device CI workflow.
+
+Local tests exercise file saving, partial failures, unique paths and the real JUnit lifecycle using a device-free fixture. A deliberate failure on a connected device is still needed to validate actual PNG/XML capture from Appium.
 
 ## Roadmap
 
 - Extend negative Trello API coverage beyond the existing unauthorized-response check.
 - Add iOS driver, Page Objects, and test coverage.
-- Add screenshots and page-source artifacts for failed device runs, alongside Surefire reports.
+- Validate device failure artifacts and add an Android device CI runner.
 
 ## License
 

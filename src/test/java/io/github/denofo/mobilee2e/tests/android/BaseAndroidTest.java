@@ -6,22 +6,41 @@ import io.github.denofo.mobilee2e.config.FrameworkConfig;
 import io.github.denofo.mobilee2e.device.android.AndroidDevice;
 import io.github.denofo.mobilee2e.device.android.AndroidDeviceContext;
 import io.github.denofo.mobilee2e.device.android.AndroidDeviceProvider;
+import io.github.denofo.mobilee2e.diagnostics.FailureArtifacts;
 import io.github.denofo.mobilee2e.driver.android.AndroidDriverFactory;
+import io.github.denofo.mobilee2e.junit.FailureArtifactsExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriverException;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 
-public abstract class BaseAndroidTest {
+@ExtendWith(FailureArtifactsExtension.class)
+public abstract class BaseAndroidTest implements FailureArtifactsExtension.Source {
 
     protected AndroidDriver driver;
     protected AndroidDevice device;
 
     private final Deque<AutoCloseable> afterSessionCleanups =
             new ArrayDeque<>();
+
+    @Override
+    public void captureFailureArtifacts(String label) throws IOException {
+        if (driver == null) {
+            System.err.println("Failure artifacts unavailable: no Appium driver was created.");
+            return;
+        }
+        String deviceLabel = device == null ? "unknown-device" : device.udid();
+        FailureArtifacts.capture(Path.of("artifacts", "android"),
+                deviceLabel + "-" + label,
+                () -> driver.getScreenshotAs(OutputType.BYTES), driver::getPageSource);
+    }
 
     @BeforeEach
     public void setUp() {
