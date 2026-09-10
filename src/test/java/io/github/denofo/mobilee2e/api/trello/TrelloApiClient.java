@@ -125,6 +125,40 @@ public final class TrelloApiClient {
                 .findFirst();
     }
 
+    public TrelloList awaitOpenListByName(String boardId, String listName) {
+        return awaitOpenListByName(boardId, listName, 5, Duration.ofMillis(500));
+    }
+
+    TrelloList awaitOpenListByName(
+            String boardId, String listName, int attempts, Duration interval
+    ) {
+        if (attempts < 1 || interval.isNegative()) {
+            throw new IllegalArgumentException("Positive attempts and non-negative interval required.");
+        }
+        List<TrelloList> lastLists = List.of();
+        for (int attempt = 1; attempt <= attempts; attempt++) {
+            // HTTP and parsing failures propagate immediately, rather than being retried.
+            lastLists = getOpenLists(boardId);
+            Optional<TrelloList> found = lastLists.stream()
+                    .filter(list -> listName.equals(list.name()))
+                    .findFirst();
+            if (found.isPresent()) {
+                return found.get();
+            }
+            if (attempt < attempts) {
+                try {
+                    Thread.sleep(interval.toMillis());
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while waiting for Trello list.", exception);
+                }
+            }
+        }
+        throw new AssertionError("Trello list not found after " + attempts
+                + " API requests. Board id=" + boardId + ", expected name=\"" + listName
+                + "\". Last returned open lists=" + lastLists);
+    }
+
     public List<TrelloCard> getCards(String listId) {
         URI uri = apiUri(
                 "lists/" + encodePathSegment(listId) + "/cards",

@@ -11,11 +11,14 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TrelloApiClientTest {
 
@@ -201,6 +204,49 @@ class TrelloApiClientTest {
                 "OAuth oauth_consumer_key=\"test-key\", oauth_token=\"test-token\"",
                 authorization.get()
         );
+    }
+
+    @Test
+    void shouldRetryUntilExpectedListAppears() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/boards/board-123/lists", exchange -> respond(exchange, 200,
+                calls.incrementAndGet() == 1 ? "[]"
+                        : "[{\"id\":\"list-1\",\"name\":\"TODO\",\"closed\":false}]"));
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        var list = client.awaitOpenListByName("board-123", "TODO", 3, Duration.ZERO);
+        assertEquals("list-1", list.id());
+        assertEquals(2, calls.get());
+    }
+
+    @Test
+    void shouldReportExpectedAndActualListsAfterBoundedAttempts() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/boards/board-123/lists", exchange -> {
+            calls.incrementAndGet();
+            respond(exchange, 200, "[{\"id\":\"list-other\",\"name\":\"DONE\",\"closed\":false}]");
+        });
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        var error = assertThrows(AssertionError.class,
+                () -> client.awaitOpenListByName("board-123", "TODO", 3, Duration.ZERO));
+        assertEquals(3, calls.get());
+        assertTrue(error.getMessage().contains("board-123"));
+        assertTrue(error.getMessage().contains("TODO"));
+        assertTrue(error.getMessage().contains("DONE"));
+        assertTrue(error.getMessage().contains("list-other"));
+        assertFalse(error.getMessage().contains("test-token"));
+    }
+
+    @Test
+    void shouldNotRetryHttpErrorsWhileWaitingForList() {
+        AtomicInteger calls = new AtomicInteger();
+        server.createContext("/1/boards/board-123/lists", exchange -> {
+            calls.incrementAndGet();
+            respond(exchange, 401, "Unauthorized");
+        });
+        var client = new TrelloApiClient(apiBaseUri, "test-key", "test-token");
+        assertThrows(IllegalStateException.class,
+                () -> client.awaitOpenListByName("board-123", "TODO", 3, Duration.ZERO));
+        assertEquals(1, calls.get());
     }
 
     private void respond(
