@@ -24,6 +24,7 @@ class AndroidBoardCreationTest extends BaseAndroidTest {
 
         BoardPage boardPage = new BoardsPage(driver)
                 .waitUntilLoaded()
+
                 .openCreateBoard()
                 .enterBoardName(boardName)
                 .createBoard();

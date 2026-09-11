@@ -28,6 +28,8 @@ Trello API setup/cleanup -> Android UI actions with Appium -> UI/API assertions
 - List and card lookup
 - Board deletion
 - Appium health-check URL construction (without a running Appium server)
+- Live Trello API integration tests for card creation, editing, moving and deletion
+- Negative API checks for invalid list IDs and missing authorization
 
 ### Android UI
 
@@ -74,7 +76,8 @@ src/test/java/io/github/denofo/mobilee2e/
 For API and framework tests:
 
 - JDK 17+
-- Internet access for the initial Maven/dependency download; the tests themselves use local mocks
+- Internet access for the initial Maven/dependency download
+- Live API tests additionally require Trello API credentials and permission to create/delete test boards
 
 For Android E2E tests:
 
@@ -143,6 +146,14 @@ Run the default non-device test suite:
 ```
 
 This runs the Trello API client tests against a local mock HTTP server, Appium server helper tests, and failure-artifact tests. It does not require a connected Android device or live Trello credentials.
+
+Run the live Trello API integration suite:
+
+```bash
+./mvnw -Papi test
+```
+
+This suite creates temporary private boards, exercises the card lifecycle through the real Trello API, and deletes each board in teardown. It does not require a device or Appium. The live suite is intentionally separate from the default and CI test runs.
 
 Run Android E2E tests:
 
