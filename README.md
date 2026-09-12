@@ -1,5 +1,7 @@
 # Mobile E2E Automation
 
+[![Maven tests](https://github.com/deno-fo/mobile-e2e-automation/actions/workflows/maven.yml/badge.svg)](https://github.com/deno-fo/mobile-e2e-automation/actions/workflows/maven.yml)
+
 Mobile end-to-end automation framework for the Trello Android application.
 
 The project demonstrates a hybrid test approach:
@@ -158,6 +160,21 @@ This suite creates temporary private boards, exercises the card lifecycle throug
 
 API tests use JUnit tags: `api`, `mock`, `integration` and `trello-api`. Allure result files are written to `target/allure-results` during test execution.
 
+### View the Allure report
+
+From the repository root, generate a fresh report using the Maven Wrapper (no Homebrew or separate Allure installation required):
+
+```bash
+./mvnw clean test allure:report
+./mvnw allure:serve
+```
+
+For a fresh live API report, use `./mvnw clean -Papi test allure:report` instead. `clean` removes previous build results, so old runs do not mix with the current report. The generated HTML is under `target/site/allure-maven-plugin`; use `allure:serve` to view it via a local web server. Stop the server with Ctrl+C.
+
+API status assertions appear as named steps. Android failure captures are attached as PNG/XML when an Allure test is active. Request headers and bodies are not attached. Android attachments may contain private app content; inspect before sharing. These attachments have been exercised with local fixtures; real-device Allure attachment verification remains pending.
+
+Configuration reference: [Allure JUnit 5](https://allurereport.org/docs/junit5/).
+
 Run Android E2E tests:
 
 ```bash
@@ -188,7 +205,7 @@ The GitHub Actions workflow in `.github/workflows/maven.yml` runs on pushes and 
 ./mvnw --batch-mode --no-transfer-progress test
 ```
 
-Maven compiles all test sources, but the default suite executes only the non-device tests: 13 mocked Trello API client tests, two Appium URL helper tests and nine failure-artifact tests (24 total). It needs no Trello secrets, connected device or running Appium server. Surefire reports are uploaded as the `surefire-reports` artifact unless the workflow is cancelled.
+Maven compiles all test sources, but the default suite executes only the non-device tests: 17 mocked Trello API client tests, two Appium URL helper tests and nine failure-artifact tests (28 total). It needs no Trello secrets, connected device or running Appium server. Surefire reports and raw Allure results are uploaded as the `surefire-reports` and `allure-results` artifacts unless the workflow is cancelled.
 
 A green CI run does not mean the Android E2E scenarios passed. Android runs locally through IDEA or the Maven profile above. GitHub-hosted CI runs only the non-device suite; a self-hosted runner on a personal Mac is not required or part of the current setup.
 

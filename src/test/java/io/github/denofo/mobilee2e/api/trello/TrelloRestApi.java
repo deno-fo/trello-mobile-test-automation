@@ -68,7 +68,8 @@ public final class TrelloRestApi {
 
     public static Response expectStatus(Response response, int expected, String operation) {
         // Do not dump response bodies on failure: a server may echo request credentials.
-        assertEquals(expected, response.statusCode(), operation + ": HTTP status");
+        io.qameta.allure.Allure.step(operation + ": expect HTTP " + expected,
+                () -> assertEquals(expected, response.statusCode(), operation + ": HTTP status"));
         return response;
     }
 

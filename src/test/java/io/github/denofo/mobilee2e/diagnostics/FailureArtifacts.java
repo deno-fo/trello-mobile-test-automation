@@ -1,5 +1,7 @@
 package io.github.denofo.mobilee2e.diagnostics;
 
+import io.qameta.allure.Allure;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,7 +31,14 @@ public final class FailureArtifacts {
 
     private static void save(Path file, Supplier<byte[]> content) {
         try {
-            Files.write(file, content.get());
+            byte[] bytes = content.get();
+            Files.write(file, bytes);
+            if (Allure.getLifecycle().getCurrentTestCase().isPresent()) {
+                boolean png = file.getFileName().toString().endsWith(".png");
+                Allure.addAttachment(file.getFileName().toString(),
+                        png ? "image/png" : "application/xml",
+                        new ByteArrayInputStream(bytes), png ? ".png" : ".xml");
+            }
         } catch (Exception | AssertionError failure) {
             // Avoid logging driver responses, which may contain private screen data.
             System.err.println("Could not save " + file.getFileName()

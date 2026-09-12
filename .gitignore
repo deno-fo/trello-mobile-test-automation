@@ -39,6 +39,7 @@ screenshots/
 page-source/
 allure-results/
 allure-report/
+.allure/
 
 ### Logs ###
 *.log
