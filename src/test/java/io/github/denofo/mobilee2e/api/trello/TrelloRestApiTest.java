@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.restassured.http.Method.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("api")
+@Tag("mock")
 class TrelloRestApiTest {
     private HttpServer server;
     private TrelloRestApi api;

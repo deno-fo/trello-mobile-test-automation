@@ -12,6 +12,8 @@ import static io.restassured.http.Method.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("trello-api")
+@Tag("api")
+@Tag("integration")
 @DisplayName("Live Trello card API (no Appium)")
 class ApiCardTest {
     private TrelloRestApi api;

@@ -13,6 +13,7 @@ Trello API setup/cleanup -> Android UI actions with Appium -> UI/API assertions
 - Java 17
 - Maven Wrapper
 - JUnit 5
+- Allure-compatible JUnit 5 reporting
 - Appium Java Client
 - Selenium WebDriver
 - Jackson
@@ -154,6 +155,8 @@ Run the live Trello API integration suite:
 ```
 
 This suite creates temporary private boards, exercises the card lifecycle through the real Trello API, and deletes each board in teardown. It does not require a device or Appium. The live suite is intentionally separate from the default and CI test runs.
+
+API tests use JUnit tags: `api`, `mock`, `integration` and `trello-api`. Allure result files are written to `target/allure-results` during test execution.
 
 Run Android E2E tests:
 
