@@ -1,6 +1,6 @@
-# Mobile E2E Automation
+# Trello Mobile Test Automation
 
-[![Maven tests](https://github.com/deno-fo/mobile-e2e-automation/actions/workflows/maven.yml/badge.svg)](https://github.com/deno-fo/mobile-e2e-automation/actions/workflows/maven.yml)
+[![Maven tests](https://github.com/deno-fo/trello-mobile-test-automation/actions/workflows/maven.yml/badge.svg)](https://github.com/deno-fo/trello-mobile-test-automation/actions/workflows/maven.yml)
 
 Mobile end-to-end automation framework for the Trello Android application.
 

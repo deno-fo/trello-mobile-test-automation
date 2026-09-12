@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.denofo</groupId>
-    <artifactId>mobile-e2e-automation</artifactId>
+    <artifactId>trello-mobile-test-automation</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
