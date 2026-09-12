@@ -33,7 +33,7 @@ Every main scenario registers board cleanup, performed after the Appium session 
 ## Additional coverage
 
 - `AndroidBoardsInteractionTest`: opens and cancels Quick Add and checks editor state. It is included in the full Android profile, but not the six-scenario stability checkpoint. It does not assert card absence through API.
-- Default non-device suite: 13 mocked Trello API client tests, two Appium URL helper tests and nine failure-artifact tests (24 total).
+- Default non-device suite: 17 mocked Trello API client tests, two Appium URL helper tests and nine failure-artifact tests (28 total).
 - The mocked API tests validate client behavior, not the availability or correctness of the live Trello service.
 
 ## Execution and acceptance
@@ -52,6 +52,9 @@ The complete `./mvnw -Pandroid test` profile includes seven Android classes. Do 
 | Non-device suite, 2026-09-11 | 24/24 passed | Local clean Maven run during artifact implementation; not a claim about a new remote CI run |
 | Six main Android scenarios, recorded 2026-09-11 | 18/18 across three consecutive runs | Maintainer-reported real-device result; individual reports for all three runs are not committed |
 | Deliberate failure on phone, 2026-09-11 | Artifact capture confirmed | `AndroidBoardCreationTest` assertion failure produced readable PNG showing the board and parseable XML; original assertion remained the failure reason |
+| Full Android profile, 2026-09-12 | 7/7 passed, no errors or skips | Agent-executed Maven run on POCO X7 Pro, including Quick Add; teardown completed without reported errors |
+| Allure attachments on phone, 2026-09-12 | PNG and XML confirmed inside HTML report | Separate controlled failure after board creation; original assertion preserved; PNG rendered and XML expanded in Allure; XML also parsed successfully |
+| Restored board creation test, 2026-09-12 | 1/1 passed | Temporary failure removed; test source matches its pre-probe version; diagnostic Allure results kept in a separate local directory |
 
 Artifacts and credentials are intentionally not committed. The recorded device results do not imply validation across Android versions, screen sizes or multiple devices.
 
@@ -68,6 +71,6 @@ PNG/XML may contain private card content. Review before sharing; do not upload c
 
 ## Execution boundaries
 
-- GitHub-hosted CI: compiles test sources and runs only the default non-device suite; uploads Surefire reports.
+- GitHub-hosted CI: compiles test sources and runs only the default non-device suite; uploads Surefire reports and raw Allure results.
 - Android: local IDEA/Maven execution with a connected device. No personal-Mac self-hosted runner is required.
 - Out of scope: implemented iOS tests, non-English UI, performance/security testing, full Trello feature coverage and guaranteed unattended device CI.

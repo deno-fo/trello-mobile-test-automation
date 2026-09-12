@@ -171,7 +171,7 @@ From the repository root, generate a fresh report using the Maven Wrapper (no Ho
 
 For a fresh live API report, use `./mvnw clean -Papi test allure:report` instead. `clean` removes previous build results, so old runs do not mix with the current report. The generated HTML is under `target/site/allure-maven-plugin`; use `allure:serve` to view it via a local web server. Stop the server with Ctrl+C.
 
-API status assertions appear as named steps. Android failure captures are attached as PNG/XML when an Allure test is active. Request headers and bodies are not attached. Android attachments may contain private app content; inspect before sharing. These attachments have been exercised with local fixtures; real-device Allure attachment verification remains pending.
+API status assertions appear as named steps. Android failure captures are attached as PNG/XML when an Allure test is active. Request headers and bodies are not attached. Android attachments may contain private app content; inspect before sharing. On 2026-09-12, all seven Android scenarios passed on a POCO X7 Pro. A separate controlled assertion failure verified that both the screenshot and page-source XML open inside Allure; the temporary failure was removed and the restored test passed again. Diagnostic failure results were stored separately from normal results.
 
 Configuration reference: [Allure JUnit 5](https://allurereport.org/docs/junit5/).
 
